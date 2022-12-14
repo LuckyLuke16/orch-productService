@@ -1,4 +1,4 @@
-package com.example.productservice.model;
+package com.example.productservice.model.entity;
 
 import lombok.Data;
 
