@@ -17,7 +17,10 @@ public interface ProductOperations {
     @GetMapping("/{itemID}")
     Item fetchSingleItem(@PathVariable int itemID);
 
-    @GetMapping("/stock")
-    ResponseEntity checkStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
+    @PostMapping("/stock")
+    ResponseEntity<List<Integer>> checkStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
+
+    @PostMapping("/stock/reset")
+    void resetStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
 
 }

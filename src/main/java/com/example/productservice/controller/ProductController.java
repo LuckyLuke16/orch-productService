@@ -58,4 +58,11 @@ public class ProductController implements ProductOperations {
         }
         return new ResponseEntity<>(itemsOutOfStock, HttpStatus.OK);
     }
+
+    public void resetStockOfItems(ItemQuantityDTO itemsWithQuantity) {
+        try {
+            this.productService.addStockOfItem(itemsWithQuantity);
+        } catch (Exception e) {
+        }
+    }
 }

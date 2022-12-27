@@ -1,8 +1,10 @@
 package com.example.productservice.service;
 
 import com.example.productservice.exception.NoItemsFoundException;
+import com.example.productservice.exception.StockNotChangeableException;
 import com.example.productservice.exception.StockToLowException;
 import com.example.productservice.model.ItemDTO;
+import com.example.productservice.model.ItemQuantityDTO;
 import com.example.productservice.model.entity.Item;
 import com.example.productservice.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -79,18 +81,30 @@ public class ProductService {
 
     public List<Integer> fetchUnavailableItems(HashMap<Integer, Integer> itemsWithQuantity) {
         List<Integer> idsOfAvailableItemsList;
-        List<Integer> idsOfUnchangedItems = new ArrayList<>();
+        List<Integer> idsOfUnchangedItems;
 
         if (itemsWithQuantity.isEmpty()) {
             throw new NoItemsFoundException();
         }
 
         idsOfAvailableItemsList = fetchAvailableItems(itemsWithQuantity);
+
+
         if(areAllItemsAvailable(itemsWithQuantity, idsOfAvailableItemsList)) {
             idsOfUnchangedItems = this.setQuantityOfItems(idsOfAvailableItemsList, itemsWithQuantity);
+            return idsOfUnchangedItems;
         }
 
-        return idsOfUnchangedItems;
+        return this.extractAvailableItems(itemsWithQuantity, idsOfAvailableItemsList);
+//        return idsOfAvailableItemsList;
+    }
+
+    private List<Integer> extractAvailableItems(HashMap<Integer, Integer> itemsWithQuantity, List<Integer> idsOfAvailableItemsList) {
+        for ( Integer i : idsOfAvailableItemsList) {
+            itemsWithQuantity.remove(i);
+        }
+
+        return itemsWithQuantity.keySet().stream().toList();
     }
 
     private List<Integer> setQuantityOfItems(List<Integer> idsOfAvailableItemsList, HashMap<Integer, Integer> itemsWithQuantity) {
@@ -98,7 +112,7 @@ public class ProductService {
 
         for (Integer id : idsOfAvailableItemsList) {
             try {
-                this.adjustQuantityOfSingleItemInDB(id, itemsWithQuantity.get(id));
+                this.reduceQuantityOfSingleItemInDB(id, itemsWithQuantity.get(id));
             } catch (Exception e) {
                 idsOfUnchangedItems.add(id);
                 logger.warn("Quantity of item with id: {} could not be changed", id);
@@ -108,7 +122,7 @@ public class ProductService {
         return idsOfUnchangedItems;
     }
 
-    private void adjustQuantityOfSingleItemInDB(Integer id, Integer quantity) {
+    private void reduceQuantityOfSingleItemInDB(Integer id, Integer quantity) {
         Optional<Item> itemOptional = this.productRepository.findById(id);
         if(itemOptional.isEmpty())
             throw new NoItemsFoundException();
@@ -151,5 +165,24 @@ public class ProductService {
         }
 
 
+    }
+
+    public void addStockOfItem(ItemQuantityDTO itemsWithQuantity) {
+        try {
+            itemsWithQuantity.getItemsFromShoppingCart().forEach((key, value) -> {
+                Optional<Item> itemToChangeOptional = this.productRepository.findById(key);
+                if(itemToChangeOptional.isEmpty()) {
+                    logger.warn("Item with id: {} not found", key);
+                } else {
+                    Item itemToChange = itemToChangeOptional.get();
+                    int currentQuantity = itemToChange.getQuantity();
+                    itemToChangeOptional.get().setQuantity(currentQuantity + value);
+                    this.productRepository.deleteById(key);
+                    this.productRepository.save(itemToChange);
+                }
+            });
+        } catch (Exception e) {
+            throw new StockNotChangeableException();
+        }
     }
 }
