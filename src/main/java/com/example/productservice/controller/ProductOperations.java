@@ -21,6 +21,6 @@ public interface ProductOperations {
     ResponseEntity<List<Integer>> checkStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
 
     @PostMapping("/stock/reset")
-    void resetStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
+    ResponseEntity<String> resetStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
 
 }

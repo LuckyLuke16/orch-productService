@@ -86,17 +86,13 @@ public class ProductService {
         if (itemsWithQuantity.isEmpty()) {
             throw new NoItemsFoundException();
         }
-
         idsOfAvailableItemsList = fetchAvailableItems(itemsWithQuantity);
-
-
         if(areAllItemsAvailable(itemsWithQuantity, idsOfAvailableItemsList)) {
             idsOfUnchangedItems = this.setQuantityOfItems(idsOfAvailableItemsList, itemsWithQuantity);
             return idsOfUnchangedItems;
         }
 
         return this.extractAvailableItems(itemsWithQuantity, idsOfAvailableItemsList);
-//        return idsOfAvailableItemsList;
     }
 
     private List<Integer> extractAvailableItems(HashMap<Integer, Integer> itemsWithQuantity, List<Integer> idsOfAvailableItemsList) {

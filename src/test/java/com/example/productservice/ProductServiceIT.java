@@ -116,6 +116,21 @@ public class ProductServiceIT extends DatabaseInitializer {
     }
 
     @Test
+    public void Should_Return_Id_2() throws Exception {
+        HashMap<Integer, Integer> itemsWithQuantity = new HashMap<>();
+        itemsWithQuantity.put(2, 10);
+        ItemQuantityDTO payload = new ItemQuantityDTO(itemsWithQuantity);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/items/stock")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(payload)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0]").value(2));
+    }
+
+    @Test
     public void Should_Reset_Stock() throws Exception {
         HashMap<Integer, Integer> itemsWithQuantity = new HashMap<>();
         itemsWithQuantity.put(2345, 2);
@@ -133,7 +148,5 @@ public class ProductServiceIT extends DatabaseInitializer {
         int updatedQuantity = this.productRepository.findById(2).get().getQuantity();
         assertEquals(expectedQuantity, updatedQuantity);
     }
-
-
 
 }
