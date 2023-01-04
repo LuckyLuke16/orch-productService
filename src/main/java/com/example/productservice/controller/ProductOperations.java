@@ -1,11 +1,10 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.model.ItemDTO;
+import com.example.productservice.model.ItemQuantityDTO;
 import com.example.productservice.model.entity.Item;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,5 +16,11 @@ public interface ProductOperations {
 
     @GetMapping("/{itemID}")
     Item fetchSingleItem(@PathVariable int itemID);
+
+    @PostMapping("/stock")
+    ResponseEntity<List<Integer>> checkStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
+
+    @PostMapping("/stock/reset")
+    ResponseEntity<String> resetStockOfItems(@RequestBody ItemQuantityDTO itemsWithQuantity);
 
 }
