@@ -13,7 +13,8 @@ public abstract class DatabaseInitializer {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public void fillDatabaseWithTestData() { this.jdbcTemplate.execute("RUNSCRIPT FROM 'classpath:database/test-data.sql'");}
+    public void fillDatabaseWithTestData() { this.jdbcTemplate
+        .execute("RUNSCRIPT FROM 'classpath:database/test-data.sql'");}
 
     public static String toJson(final Object obj) {
         try {
